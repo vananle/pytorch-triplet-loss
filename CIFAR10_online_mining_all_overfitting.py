@@ -20,11 +20,11 @@ batch_size_train = 256
 
 # %%
 train_loader = DataLoader(CIFAR10('./CIFAR10/', train=True, download=True,
-                                transform=Compose([ToTensor(),Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-                               ),batch_size=batch_size_train, shuffle=True)
+                                  transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                                  ), batch_size=batch_size_train, shuffle=True)
 test_loader = DataLoader(CIFAR10('./CIFAR10/', train=False, download=True,
-                                transform=Compose([ToTensor(),Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-                               ),batch_size=batch_size_train, shuffle=False)
+                                 transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                                 ), batch_size=batch_size_train, shuffle=False)
 
 # %%
 x_test, y_test = next(iter(test_loader))
@@ -41,8 +41,10 @@ train_tsne_embeds = tsne.fit_transform(x_train.flatten(1).cpu().detach().numpy()
 test_tsne_embeds = tsne.fit_transform(x_test.flatten(1).cpu().detach().numpy())
 
 # %%
-scatter(train_tsne_embeds, y_train.cpu().numpy(), subtitle=f'online Original MNIST distribution (train set)', dataset='CIFAR10')
-scatter(test_tsne_embeds, y_test.cpu().numpy(), subtitle=f'online Original MNIST distribution (test set)', dataset='CIFAR10')
+scatter(train_tsne_embeds, y_train.cpu().numpy(), subtitle=f'online Original MNIST distribution (train set)',
+        dataset='CIFAR10')
+scatter(test_tsne_embeds, y_test.cpu().numpy(), subtitle=f'online Original MNIST distribution (test set)',
+        dataset='CIFAR10')
 
 # %%
 model = Model.TNN_CIFAR10(input_shape=x_train.shape[1:], output_size=32)
@@ -64,16 +66,18 @@ for epoch in range(300):  # loop over the dataset multiple times
 
         # forward + backward + optimize
         outputs = model(inputs)
-        loss, pos_triplet, valid_triplet = Mining.online_mine_all(labels, outputs, margin=margin, squared=True, device=device)
+        loss, pos_triplet, valid_triplet = Mining.online_mine_all(labels, outputs, margin=margin, squared=True,
+                                                                  device=device)
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-        if i%2 == 0:
-            print(f"At epoches = {epoch}, i = {i}, loss = {loss:.5f}, trainable_triplet = {pos_triplet}, total_triplets = {valid_triplet}"
-                  , end='\r')
+        if i % 2 == 0:
+            print(
+                f"At epoches = {epoch}, i = {i}, loss = {loss:.5f}, trainable_triplet = {pos_triplet}, total_triplets = {valid_triplet}"
+                , end='\r')
     epoch_loss = running_loss / len(train_loader)
-    
-    print(" "*100)
+
+    print(" " * 100)
     print(f"At epoches = {epoch}, epoch_loss = {epoch_loss}")
 print('Finished Training')
 
